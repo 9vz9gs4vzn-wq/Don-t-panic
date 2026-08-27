@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#090a0f" />
+<title>PANIC BUTTON</title>
+<style>
+:root{--bg:#090a0f;--panel:#121521;--text:#f7f8fb;--muted:#9299aa;--good:#68ff9b;--bad:#ff4d6d;--warn:#ffd166;--accent:#7b61ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;touch-action:manipulation}
+body{display:flex;justify-content:center;align-items:center}.app{width:min(100vw,560px);height:100dvh;position:relative;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+.top{height:92px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}.stat{font-size:12px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}.stat b{display:block;color:var(--text);font-size:24px;letter-spacing:0}.right{text-align:right}.logo{font-weight:900;font-size:14px;letter-spacing:.2em;text-align:center}.arena{flex:1;min-height:0;position:relative;border:1px solid #24293a;border-radius:28px;background:radial-gradient(circle at 50% 35%,#171b2b 0,#0d0f17 45%,#090a0f 80%);overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.45) inset}.rule{position:absolute;left:14px;right:14px;top:14px;height:82px;border:1px solid #30364c;border-radius:22px;background:rgba(12,14,22,.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 18px;font-size:24px;font-weight:900;line-height:1.05;z-index:5}.rule small{display:block;font-size:11px;color:var(--muted);letter-spacing:.12em;margin-bottom:5px}.grid{position:absolute;inset:110px 14px 14px;display:grid;gap:10px}.btn{border:0;border-radius:22px;background:#1b2030;color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(17px,6vw,31px);min-width:0;min-height:0;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .08s ease,filter .08s ease}.btn:active{transform:scale(.95)}
+.overlay{position:absolute;inset:0;z-index:20;background:rgba(4,5,9,.92);display:flex;align-items:center;justify-content:center;padding:30px;text-align:center}.card{width:100%;max-width:420px}.title{font-size:clamp(44px,14vw,78px);font-weight:1000;line-height:.82;letter-spacing:-.06em;margin:0}.accent{color:var(--warn)}.sub{color:#b5bbca;line-height:1.5;margin:18px auto 22px;max-width:350px}.cta{width:100%;height:64px;border:0;border-radius:20px;background:white;color:#090a0f;font-size:18px;font-weight:900}.tiny{font-size:11px;color:#737b90;margin-top:13px;line-height:1.5}.hidden{display:none}.flash{position:absolute;inset:0;z-index:10;pointer-events:none;opacity:0}.flash.good{background:rgba(104,255,155,.23);animation:f .22s}.flash.bad{background:rgba(255,77,109,.3);animation:f .28s}@keyframes f{0%{opacity:1}100%{opacity:0}}.toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.8);z-index:12;font-size:clamp(44px,15vw,86px);font-weight:1000;opacity:0;pointer-events:none;text-shadow:0 6px 25px #000}.toast.go{animation:pop .55s}@keyframes pop{0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}65%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}.bottom{height:74px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;padding:0 6px}.meter{height:8px;flex:1;background:#191d2a;border-radius:10px;overflow:hidden;margin:0 12px}.meter>i{display:block;height:100%;width:100%;background:white;transform-origin:left}.shake{animation:shake .22s}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top"><div class="stat">Score<b id="score">0</b></div><div class="logo">PANIC BUTTON</div><div class="stat right">Best<b id="best">0</b></div></div>
+  <main class="arena" id="arena">
+    <div class="rule" id="rule"><div><small>DO EXACTLY THIS</small><span id="ruleText">TAP START</span></div></div>
+    <div class="grid" id="grid"></div><div class="flash" id="flash"></div><div class="toast" id="toast"></div>
+    <div class="overlay" id="overlay"><div class="card"><h1 class="title">PANIC<br><span class="accent">BUTTON</span></h1><p class="sub">One rule. A screen full of wrong answers. The rule mutates faster the longer you survive.</p><button class="cta" id="start">TAP TO PANIC</button><div class="tiny">Daily challenge • streaks • shareable scores • built for 10-second clips</div></div></div>
+  </main>
+  <div class="bottom"><span id="level">LEVEL 1</span><div class="meter"><i id="timer"></i></div><span id="lives">♥♥♥</span></div>
+</div>
+<script>
+(()=>{
+const grid=document.querySelector('#grid'), scoreEl=document.querySelector('#score'), bestEl=document.querySelector('#best'), ruleText=document.querySelector('#ruleText'), overlay=document.querySelector('#overlay'), start=document.querySelector('#start'), timerEl=document.querySelector('#timer'), livesEl=document.querySelector('#lives'), levelEl=document.querySelector('#level'), flash=document.querySelector('#flash'), toast=document.querySelector('#toast'), app=document.querySelector('#app');
+let score=0,best=+(localStorage.pbBest||0),lives=3,deadline=0,duration=2600,tick=null,answer='',buttons=[],mode='word',streak=0;
+bestEl.textContent=best;
+const words=['RED','BLUE','GREEN','YELLOW','LEFT','RIGHT','UP','DOWN','YES','NO','GO','STOP','ONE','TWO','THREE','FOUR'];
+const symbols=['▲','●','■','★','◆','✚','☂','☀','☾','⚡','♥','♠','♣','♦'];
+function rand(a){return a[Math.floor(Math.random()*a.length)]} function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function round(){clearInterval(tick); const level=Math.floor(score/7)+1, count=Math.min(16,4+Math.floor(score/3)); duration=Math.max(720,2600-score*34); levelEl.textContent='LEVEL '+level; grid.style.gridTemplateColumns=`repeat(${Math.ceil(Math.sqrt(count))},1fr)`; grid.style.gridTemplateRows=`repeat(${Math.ceil(count/Math.ceil(Math.sqrt(count)))},1fr)`;
+  let pool=score<8?words:shuffle(words.concat(symbols)); buttons=shuffle(pool.slice(0,count)); if(buttons.length<count){while(buttons.length<count)buttons.push(rand(pool))} answer=rand(buttons);
+  const trickChance=Math.min(.72,score*.025); const trick=Math.random()<trickChance;
+  if(!trick){ruleText.textContent=`TAP ${answer}`;mode='word'} else {const choices=['NOT','INDEX','POSITION','ODD'];mode=rand(choices); if(mode==='NOT'){let fake=rand(buttons.filter(x=>x!==answer));ruleText.textContent=`DON'T TAP ${fake}`; answer=rand(buttons.filter(x=>x!==fake));} if(mode==='INDEX'){let idx=Math.floor(Math.random()*buttons.length);answer=buttons[idx];ruleText.textContent=`TAP BUTTON #${idx+1}`;} if(mode==='POSITION'){const idx=rand([0,buttons.length-1]);answer=buttons[idx];ruleText.textContent=idx===0?'TAP TOP-LEFT':'TAP BOTTOM-RIGHT';} if(mode==='ODD'){answer=rand(buttons);ruleText.textContent=`TAP ${answer} — IGNORE THE FLASH`; setTimeout(()=>fx('bad'),220)} }
+  render();deadline=performance.now()+duration;tick=setInterval(updateTimer,30)
+}
+function render(){grid.innerHTML='';buttons.forEach((x,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=x;b.dataset.v=x;b.onclick=()=>tap(x); if(score>12 && Math.random()<.25)b.style.transform=`rotate(${Math.floor(Math.random()*16-8)}deg)`; grid.appendChild(b)})}
+function tap(v){if(v===answer){score++;streak++;scoreEl.textContent=score; if(score>best){best=score;localStorage.pbBest=best;bestEl.textContent=best} fx('good');say(streak>4&&streak%5===0?'HEAT!':'✓');round()}else{miss()}}
+function miss(){lives--;streak=0;livesEl.textContent='♥'.repeat(lives)+'♡'.repeat(3-lives);fx('bad');say('NOPE');app.classList.remove('shake');void app.offsetWidth;app.classList.add('shake');if(lives<=0)gameOver();else round()}
+function updateTimer(){const left=Math.max(0,deadline-performance.now());timerEl.style.transform=`scaleX(${left/duration})`;if(left<=0)miss()}
+function fx(type){flash.className='flash '+type;setTimeout(()=>flash.className='flash',300)}function say(t){toast.textContent=t;toast.className='toast go';setTimeout(()=>toast.className='toast',600)}
+function gameOver(){clearInterval(tick);overlay.classList.remove('hidden');overlay.querySelector('.card').innerHTML=`<h1 class="title">SCORE<br><span class="accent">${score}</span></h1><p class="sub">Best: <b>${best}</b><br>${score>=25?'That is properly unhinged.':'Your brain folded under pressure.'}</p><button class="cta" id="again">GO AGAIN</button><div class="tiny">Prototype build • next: daily seed, skins, quests, rewarded revive, leaderboard + share card</div>`;document.querySelector('#again').onclick=begin}
+function begin(){score=0;lives=3;streak=0;scoreEl.textContent=0;livesEl.textContent='♥♥♥';overlay.classList.add('hidden');round()}
+start.onclick=begin;
+})();
+</script>
+</body>
+</html>
